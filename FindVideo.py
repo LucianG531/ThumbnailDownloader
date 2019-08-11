@@ -1,5 +1,8 @@
 #!/usr/bin/env python
+
 from apiclient.discovery import build
+
+
 """
 
 Python script designed to download thumbnail from last video in a channel
@@ -10,11 +13,11 @@ base_url = "https://www.youtube.com/watch?v="
 
 Tutorial on how to get your google API key:
 https://developers.google.com/youtube/v3/getting-started
-"""
+"""    
 
-key = input("Enter google API key:" )
+key = input("Enter google API key: ")
+print("Building request...") 
 
-channel_name = input("Enter channel name: ")
 youtube = build('youtube','v3', developerKey=key)
 
 # Makes a request to the youtube api to find the channel id given a channel name
@@ -22,8 +25,26 @@ youtube = build('youtube','v3', developerKey=key)
 #       multiple channels with the same name exist
 
 def getChannelID():
-    response = youtube.search().list(type='channel',part='id',q=channel_name,maxResults=1).execute()
-    return response['items'][0]['id']['channelId']
+      
+    # Error handling for when user inserts an invalid channel name
+    while(True):
+        try:
+            channel_name = input("Enter channel name: ")
+            print("Searching for channel...")
+            response = youtube.search().list(type='channel',part='id',q=channel_name,maxResults=1).execute()
+            cid = response['items'][0]['id']['channelId']
+        except IndexError:
+            print("Channel not found.")
+            cid = None
+            continue
+
+        if cid == None:
+            print("Enter channel name again: ")
+            continue
+        else:
+            break
+            
+    return cid
 
 channel_id = getChannelID()
 
